@@ -1,14 +1,16 @@
 {
-  "name": "@glittle/shelf",
+  "name": "@canadaduane/shelf",
   "version": "0.1.9",
-  "description": "shelf utilities",
+  "description": "Shelf CRDT",
+  "author": "mostly glittle, and a little canadaduane",
   "main": "index.js",
+  "type": "module", 
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dglittle/shelf.git"
+    "url": "https://github.com/canadaduane/shelf.git"
   },
-  "homepage": "https://github.com/dglittle/shelf",
+  "homepage": "https://github.com/canadaduane/shelf",
   "scripts": {
     "test": "node test.js"
   }
