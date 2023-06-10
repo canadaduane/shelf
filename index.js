@@ -22,11 +22,9 @@ shelf.read = (s, ...path) => {
   } else return s?.[0];
 };
 
-shelf.getChange = (a, b) => {
-  return shelf.merge(a, b, true);
-};
+shelf.getChange = (a, b) => shelf.merge(a, b, false);
 
-shelf.merge = (a, b, dont_modify) => {
+shelf.merge = (a, b, modify = true) => {
   let change = null;
 
   if (!a) a = [null, -1];
@@ -39,14 +37,14 @@ shelf.merge = (a, b, dont_modify) => {
 
   if (b[1] > (a[1] ?? -1) || (b[1] == a[1] && greaterThan(b[0], a[0]))) {
     if (isObj(b[0])) {
-      if (!dont_modify) {
+      if (modify) {
         a[0] = {};
         a[1] = b[1];
       }
-      change = shelf.merge(dont_modify ? [{}, b[1]] : a, b, dont_modify);
+      change = shelf.merge(modify ? a : [{}, b[1]], b, modify);
       if (!change) change = [{}, b[1]];
     } else {
-      if (!dont_modify) {
+      if (modify) {
         a[0] = b[0];
         a[1] = b[1];
       }
@@ -54,8 +52,8 @@ shelf.merge = (a, b, dont_modify) => {
     }
   } else if (b[1] == a[1] && both_objs) {
     for (let [k, v] of Object.entries(b[0])) {
-      if (!dont_modify && !a[0][k]) a[0][k] = [null, -1];
-      let diff = shelf.merge(a[0][k], v, dont_modify);
+      if (modify && !a[0][k]) a[0][k] = [null, -1];
+      let diff = shelf.merge(a[0][k], v, modify);
       if (diff) {
         if (!change) change = [{}, b[1]];
         change[0][k] = diff;
