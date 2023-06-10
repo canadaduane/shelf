@@ -168,50 +168,6 @@ shelf.remote_update = (a, f, b) => {
   return f;
 };
 
-shelf.to_braid = (s) => {
-  var vs = [];
-  var values = [];
-  function f(s) {
-    var x = s[0];
-    if (is_obj(x))
-      x = Object.fromEntries(Object.entries(x).map(([k, v]) => [k, f(v)]));
-    else {
-      values.push(x);
-      x = values.length - 1;
-    }
-    vs.push(s[1]);
-    return x;
-  }
-  return {
-    json_slice: f(s),
-    values,
-    version: `${Math.random().toString(36).slice(2)}:${vs.join(",")}`,
-  };
-};
-
-shelf.from_braid = ({ version, json_slice, values }) => {
-  var f = (x) => {
-    if (typeof x == "object")
-      return Object.fromEntries(Object.entries(x).map(([k, v]) => [k, f(v)]));
-    else return values[x];
-  };
-  var x = f(json_slice);
-
-  var vs = version
-    .split(":")[1]
-    .split(",")
-    .map((x) => 1 * x);
-  f = (x) => {
-    return [
-      is_obj(x)
-        ? Object.fromEntries(Object.entries(x).map(([k, v]) => [k, f(v)]))
-        : x,
-      vs.shift(),
-    ];
-  };
-  return f(x);
-};
-
 function is_obj(o) {
   return o && typeof o == "object" && !Array.isArray(o);
 }

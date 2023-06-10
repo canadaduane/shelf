@@ -10,13 +10,6 @@ import { shelf } from "./index.js";
   for (var i = 0; i < n; i++) {
     if (i % 100 == 0) console.log(`${i}/${n}`);
 
-    if (!deep_eq(shelf.from_braid(shelf.to_braid(a)), a)) {
-      print(a);
-      print({ to_braid: shelf.to_braid(a) });
-      print({ from_braid: shelf.from_braid(shelf.to_braid(a)) });
-      throw Error();
-    }
-
     if (!looks_right(a)) throw Error();
     if (!looks_right(b)) throw Error();
     if (!looks_right(a_msg)) throw Error();

@@ -92,26 +92,6 @@ shelf.remote_update(backend, frontend, CHANGE) -->
 backend is [{a: [null, 1], b: [55, 1]}, 0]
 ```
 
-# braid API
-
-here are a couple methods to assist in using shelves with the braid protocol
-
-``` js
-shelf.to_braid([{a: [{b: [42, 1]}, 2], c: [55, 3]}, 4]) -->
-{
-    "json_slice": {"a": {"b": 0}, "c": 1}, // key/path information encoded here,
-                                           // where values are indexes into "values" array;
-    "values": [42, 55],                    // <-- here is that "values" array;
-    "version": "random_prefix:1,2,3,4"     // all version numbers encoded here
-}
-
-shelf.from_braid({
-    "json_slice": {"a": {"b": 0}, "c": 1}, 
-    "values": [42, 55],
-    "version": "random_prefix:1,2,3,4"
-}) --> [{a: [{b: [42, 1]}, 2], c: [55, 3]}, 4] // we're back where we started!
-```
-
 # utility API
 
 here are some utility methods used internally, but maybe useful outside
