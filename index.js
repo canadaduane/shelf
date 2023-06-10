@@ -78,31 +78,6 @@ shelf.mask = (s, mask) => {
       ];
 };
 
-shelf.proxy = (s, cb) => {
-  return new Proxy(s[0], {
-    get(o, k) {
-      if (k == Symbol.toPrimitive) return () => null;
-      let x = o[k]?.[0];
-      if (x && typeof x == "object" && !Array.isArray(x)) {
-        return shelf.proxy(o[k], (delta) => cb([{ [k]: delta }, s[1]]));
-      } else return x;
-    },
-    set(o, k, v) {
-      let x = shelf.merge(s, { [k]: v });
-      if (x) cb(x);
-      return true;
-    },
-    deleteProperty(o, k) {
-      let x = shelf.merge(s, { [k]: null });
-      if (x) cb(x);
-      return true;
-    },
-    ownKeys(o) {
-      return Reflect.ownKeys(o).filter((k) => o[k][0] != null);
-    },
-  });
-};
-
 shelf.localUpdate = (backend, frontend, override_new_version) => {
   if (equal(backend[0], frontend)) {
     if (isObj(frontend)) {
@@ -116,11 +91,7 @@ shelf.localUpdate = (backend, frontend, override_new_version) => {
       }
       for (let [k, v] of Object.entries(frontend)) {
         if (!backend[0][k]) backend[0][k] = [null, -1];
-        let changes = shelf.localUpdate(
-          backend[0][k],
-          v,
-          override_new_version
-        );
+        let changes = shelf.localUpdate(backend[0][k], v, override_new_version);
         if (changes) ret[0][k] = changes;
       }
       return Object.keys(ret[0]).length ? ret : null;
