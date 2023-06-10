@@ -24,7 +24,7 @@ or
 
 # API
 
-here's how to use the `create`, `read`, `get`, `merge`, `get_change`, and `mask` functions..
+here's how to use the `create`, `read`, `get`, `merge`, `getChange`, and `mask` functions..
 
 ``` js
 shelf.create({a: 42})              --> [{a: [42, 0]}, 0]
@@ -45,12 +45,12 @@ shelf.merge(a,  [{a: [42   ],             c: [43   ]}   ])
 shelf.merge(a,   {a:  42    ,             c:  43    }    )
 
 // we can also just get the change, without modifying our inputs
-shelf.get_change(
+shelf.getChange(
     [{a: [42, 0], b: [42, 0], c: [42, 0]}, 0],
     [{a: [42, 0],             c: [43, 1]}, 0]) -->
     [{                        c: [43, 1]}, 0] // returns what changed
 
-shelf.get_change(
+shelf.getChange(
     [{a: [42, 0], b: [42, 0], c: [43, 1]}, 0],
     [{a: [42, 0],             c: [42, 0]}, 0]) --> null // no change!
 
@@ -58,7 +58,7 @@ shelf.get_change(
 shelf.mask([{a: [42, 0], b: [43, 1]}, 0], {b: true}) --> [{b: [43, 1]}, 0]
 ```
 
-# Fancy API `local_update/remote_update`
+# Fancy API `localUpdate/remoteUpdate`
 
 Here is a paradigm for some clients to synchronize their state. 
 
@@ -66,7 +66,7 @@ Each client has a shelf called `backend`, and a regular javascript object called
 
 When an end-user makes a change, they modify their `frontend` directly.
 
-When a client wants to commit the recent changes made to their `frontend`, they call `local_update(backend, frontend)`, and send the return value `CHANGE` to all the other clients, who each then call `remote_update(backend, frontend, CHANGE)`, which will merge the change into `backend`, and even modify `frontend` in a sensible way, namely only modifying `frontend` in places where it was the same as `backend` before the `CHANGE`.
+When a client wants to commit the recent changes made to their `frontend`, they call `localUpdate(backend, frontend)`, and send the return value `CHANGE` to all the other clients, who each then call `remoteUpdate(backend, frontend, CHANGE)`, which will merge the change into `backend`, and even modify `frontend` in a sensible way, namely only modifying `frontend` in places where it was the same as `backend` before the `CHANGE`.
 
 Let's see it in action:
 
@@ -74,14 +74,14 @@ Let's see it in action:
 // client Alice
 backend  = [{a: [42, 0],   b: [42, 0]}, 0] 
 frontend =  {              b:  55    }
-CHANGE   = shelf.local_update(backend, frontend) -->
+CHANGE   = shelf.localUpdate(backend, frontend) -->
            [{a: [null, 1], b: [55, 1]}, 0] // returns change
 
 // client Bob
 backend  = [{a: [42, 0],   b: [42, 0]}, 0] 
 frontend =  {a:  42,       b:  43    }     // user has modified b
 CHANGE   = [{a: [null, 1], b: [55, 1]}, 0] // from Alice
-shelf.remote_update(backend, frontend, CHANGE) -->
+shelf.remoteUpdate(backend, frontend, CHANGE) -->
             {              b:  43    } // returns new frontend (and modifies it)
                                        // note b is still 43
 backend is [{a: [null, 1], b: [55, 1]}, 0]

@@ -61,34 +61,34 @@ import { shelf } from "./index.js";
     if (Math.random() < 0.2) bf = tweek(bf);
 
     if (Math.random() < 0.2) {
-      let diff = shelf.local_update(a, af);
+      let diff = shelf.localUpdate(a, af);
       if (diff) shelf.merge(b_msg, diff);
       if (!deep_eq(shelf.read(a), af)) throw Error();
     }
 
     if (Math.random() < 0.2) {
-      let diff = shelf.local_update(b, bf);
+      let diff = shelf.localUpdate(b, bf);
       if (diff) shelf.merge(a_msg, diff);
       if (!deep_eq(shelf.read(b), bf)) throw Error();
     }
 
     if (Math.random() < 0.1) {
-      af = shelf.remote_update(a, af, a_msg);
-      bf = shelf.remote_update(b, bf, b_msg);
+      af = shelf.remoteUpdate(a, af, a_msg);
+      bf = shelf.remoteUpdate(b, bf, b_msg);
       a_msg = [null, -1];
       b_msg = [null, -1];
       if (!deep_eq(shelf.read(a), shelf.read(b))) throw Error();
     }
 
     if (Math.random() < 0.1) {
-      let diff = shelf.local_update(a, af);
+      let diff = shelf.localUpdate(a, af);
       if (diff) shelf.merge(b_msg, diff);
 
-      diff = shelf.local_update(b, bf);
+      diff = shelf.localUpdate(b, bf);
       if (diff) shelf.merge(a_msg, diff);
 
-      af = shelf.remote_update(a, af, a_msg);
-      bf = shelf.remote_update(b, bf, b_msg);
+      af = shelf.remoteUpdate(a, af, a_msg);
+      bf = shelf.remoteUpdate(b, bf, b_msg);
       a_msg = [null, -1];
       b_msg = [null, -1];
 
@@ -104,14 +104,14 @@ import { shelf } from "./index.js";
   a = [2, 2];
   f = 3;
   b = [1, 1];
-  r = shelf.remote_update(a, f, b);
+  r = shelf.remoteUpdate(a, f, b);
   if (r != 3) throw "bad";
   if (JSON.stringify(a) != "[2,2]") throw "bad";
 
   a = [2, 2];
   f = { a: 1, b: 2 };
   b = [{ b: [1, 1] }, 3];
-  r = shelf.remote_update(a, f, b);
+  r = shelf.remoteUpdate(a, f, b);
   if (JSON.stringify(a) != '[{"b":[1,1]},3]') throw "bad";
   if (JSON.stringify(r) != '{"a":1,"b":1}') throw "bad";
 }
@@ -126,12 +126,12 @@ function clone(o) {
   return JSON.parse(JSON.stringify(o));
 }
 
-function is_obj(o) {
+function isObj(o) {
   return o && typeof o == "object" && !Array.isArray(o);
 }
 function equal(a, b) {
-  if (is_obj(a)) return is_obj(b);
-  if (is_obj(b)) return false;
+  if (isObj(a)) return isObj(b);
+  if (isObj(b)) return false;
   return JSON.stringify(a) == JSON.stringify(b);
 }
 
@@ -139,7 +139,7 @@ function looks_right(s) {
   if (!Array.isArray(s)) return false;
   if (s.length < 1 || s.length > 2) return false;
   if (!Number.isInteger(s[1]) && s != null && s != "add") return false;
-  return is_obj(s[0])
+  return isObj(s[0])
     ? Object.entries(s[0]).every(([k, v]) => looks_right(v))
     : true;
 }
@@ -185,7 +185,7 @@ function pick(x) {
 }
 
 function tweek(x) {
-  if (is_obj(x)) {
+  if (isObj(x)) {
     if (Math.random() < 0.2) {
       return null;
     } else {

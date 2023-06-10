@@ -1,7 +1,7 @@
 export const shelf = {};
 
 shelf.wrap = (s) =>
-  is_obj(s)
+  isObj(s)
     ? Object.fromEntries(Object.entries(s).map(([k, v]) => [k, shelf.wrap(v)]))
     : [s];
 
@@ -13,7 +13,7 @@ shelf.create = (init) => {
 
 shelf.read = (s, ...path) => {
   s = path.reduce((s, x) => s?.[0]?.[x], s);
-  if (s && is_obj(s[0])) {
+  if (s && isObj(s[0])) {
     return Object.fromEntries(
       Object.entries(s[0])
         .map(([k, v]) => [k, shelf.read(v)])
@@ -22,7 +22,7 @@ shelf.read = (s, ...path) => {
   } else return s?.[0];
 };
 
-shelf.get_change = (a, b) => {
+shelf.getChange = (a, b) => {
   return shelf.merge(a, b, true);
 };
 
@@ -32,13 +32,13 @@ shelf.merge = (a, b, dont_modify) => {
   if (!a) a = [null, -1];
   if (!Array.isArray(b)) b = [b];
 
-  let both_objs = is_obj(a[0]) && is_obj(b[0]);
+  let both_objs = isObj(a[0]) && isObj(b[0]);
   let eq = equal(a[0], b[0]);
 
   if (b[1] == null) b = [b[0], a[1] + (eq ? 0 : 1)];
 
-  if (b[1] > (a[1] ?? -1) || (b[1] == a[1] && greater_than(b[0], a[0]))) {
-    if (is_obj(b[0])) {
+  if (b[1] > (a[1] ?? -1) || (b[1] == a[1] && greaterThan(b[0], a[0]))) {
+    if (isObj(b[0])) {
       if (!dont_modify) {
         a[0] = {};
         a[1] = b[1];
@@ -66,7 +66,7 @@ shelf.merge = (a, b, dont_modify) => {
 };
 
 shelf.mask = (s, mask) => {
-  return mask == true || !is_obj(s[0])
+  return mask == true || !isObj(s[0])
     ? s
     : [
         Object.fromEntries(
@@ -103,9 +103,9 @@ shelf.proxy = (s, cb) => {
   });
 };
 
-shelf.local_update = (backend, frontend, override_new_version) => {
+shelf.localUpdate = (backend, frontend, override_new_version) => {
   if (equal(backend[0], frontend)) {
-    if (is_obj(frontend)) {
+    if (isObj(frontend)) {
       var ret = [{}, backend[1]];
       for (let [k, v] of Object.entries(backend[0])) {
         if (v[0] != null && frontend[k] == null) {
@@ -116,7 +116,7 @@ shelf.local_update = (backend, frontend, override_new_version) => {
       }
       for (let [k, v] of Object.entries(frontend)) {
         if (!backend[0][k]) backend[0][k] = [null, -1];
-        let changes = shelf.local_update(
+        let changes = shelf.localUpdate(
           backend[0][k],
           v,
           override_new_version
@@ -127,12 +127,12 @@ shelf.local_update = (backend, frontend, override_new_version) => {
     }
   } else {
     backend[1] = override_new_version || (backend[1] ?? -1) + 1;
-    if (is_obj(frontend)) {
+    if (isObj(frontend)) {
       backend[0] = {};
       for (let [k, v] of Object.entries(frontend)) {
-        if (is_obj(v)) {
+        if (isObj(v)) {
           backend[0][k] = [null, -1];
-          shelf.local_update(backend[0][k], v, override_new_version);
+          shelf.localUpdate(backend[0][k], v, override_new_version);
         } else {
           backend[0][k] = [v, 0];
         }
@@ -142,23 +142,23 @@ shelf.local_update = (backend, frontend, override_new_version) => {
   }
 };
 
-shelf.remote_update = (a, f, b) => {
-  if (b[1] > (a[1] ?? -1) || (b[1] == a[1] && greater_than(b[0], a[0]))) {
+shelf.remoteUpdate = (a, f, b) => {
+  if (b[1] > (a[1] ?? -1) || (b[1] == a[1] && greaterThan(b[0], a[0]))) {
     a[1] = b[1];
-    if (!is_obj(a[0]) && is_obj(f) && is_obj(b[0])) {
+    if (!isObj(a[0]) && isObj(f) && isObj(b[0])) {
       a[0] = {};
-      return shelf.remote_update(a, f, b);
+      return shelf.remoteUpdate(a, f, b);
     }
-    if (is_obj(b[0])) {
+    if (isObj(b[0])) {
       a[0] = {};
       shelf.merge(a, b);
     } else a[0] = b[0];
     f = shelf.read(a);
-  } else if (b[1] == a[1] && is_obj(a[0]) && is_obj(b[0])) {
-    if (is_obj(f)) {
+  } else if (b[1] == a[1] && isObj(a[0]) && isObj(b[0])) {
+    if (isObj(f)) {
       for (let [k, v] of Object.entries(b[0])) {
         if (!a[0][k]) a[0][k] = [null, -1];
-        f[k] = shelf.remote_update(a[0][k], f[k], v);
+        f[k] = shelf.remoteUpdate(a[0][k], f[k], v);
         if (f[k] == null) delete f[k];
       }
     } else shelf.merge(a, b);
@@ -166,18 +166,18 @@ shelf.remote_update = (a, f, b) => {
   return f;
 };
 
-function is_obj(o) {
+function isObj(o) {
   return o && typeof o == "object" && !Array.isArray(o);
 }
 
-function greater_than(a, b) {
-  if (is_obj(b)) return false;
-  if (is_obj(a)) return true;
+function greaterThan(a, b) {
+  if (isObj(b)) return false;
+  if (isObj(a)) return true;
   return JSON.stringify(a) > JSON.stringify(b);
 }
 
 function equal(a, b) {
-  if (is_obj(a)) return is_obj(b);
-  if (is_obj(b)) return false;
+  if (isObj(a)) return isObj(b);
+  if (isObj(b)) return false;
   return JSON.stringify(a) == JSON.stringify(b);
 }
