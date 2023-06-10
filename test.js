@@ -1,4 +1,4 @@
-import { shelf } from "./index.js";
+import * as shelf from "./index.js";
 
 {
   let a = [null, -1];
