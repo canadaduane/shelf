@@ -32,8 +32,6 @@ shelf.create({a: 42})              --> [{a: [42, 0]}, 0]
 shelf.read([{a: [42, 0]}, 0])      --> {a: 42}
 shelf.read([{a: [42, 0]}, 0], 'a') --> 42
 
-shelf.get = shelf.read
-
 // here's the merge function
             a = [{a: [42, 0], b: [42, 0], c: [42, 0]}, 0]
 shelf.merge(a,  [{a: [42, 0],             c: [43, 1]}, 0]) --> 
@@ -60,20 +58,17 @@ shelf.get_change(
 shelf.mask([{a: [42, 0], b: [43, 1]}, 0], {b: true}) --> [{b: [43, 1]}, 0]
 ```
 
-# fancy API `local_update/remote_update`
+# Fancy API `local_update/remote_update`
 
-here is a paradigm for some clients to synchronize their state.
-each client has a shelf called `backend`,
-and a regular javascript object called `frontend`.
-when an end-user makes a change, they modify their `frontend` directly.
-when a client wants to commit the recent changes made to their `frontend`,
-they call `local_update(backend, frontend)`,
-and send the return value `CHANGE` to all the other clients,
-who each then call `remote_update(backend, frontend, CHANGE)`,
-which will merge the change into `backend`,
-and even modify `frontend` in a sensible way,
-namely only modifying `frontend` in places where it was the same as `backend` before the `CHANGE`.
-let's see it in action..
+Here is a paradigm for some clients to synchronize their state. 
+
+Each client has a shelf called `backend`, and a regular javascript object called `frontend`.
+
+When an end-user makes a change, they modify their `frontend` directly.
+
+When a client wants to commit the recent changes made to their `frontend`, they call `local_update(backend, frontend)`, and send the return value `CHANGE` to all the other clients, who each then call `remote_update(backend, frontend, CHANGE)`, which will merge the change into `backend`, and even modify `frontend` in a sensible way, namely only modifying `frontend` in places where it was the same as `backend` before the `CHANGE`.
+
+Let's see it in action:
 
 ``` js
 // client Alice
